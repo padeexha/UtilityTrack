@@ -23,7 +23,7 @@ export async function POST(req: Request) {
           content: [
             { 
               type: 'text', 
-              text: 'You are an expert at reading utility meters (water, electricity, gas). Extract the primary meter reading from this image. It is usually the largest number, often on an LCD screen or a set of analog rolling digits. Ignore any serial numbers, barcodes, or small labels. Include any decimals if present. Respond ONLY with the raw numeric reading. Do not include units or any other words.' 
+              text: 'You are an expert at reading utility meters (like the Electronic Watthour Meter shown). Look strictly at the digital LCD screen. You will typically see a smaller code on the left (such as 1.8.0, 1.8.1, or 96.1.0) and a large number on the right. Extract ONLY the large number on the right side of the LCD screen. Ignore printed barcodes, serial numbers, labels, and the small OBIS code on the left. Respond ONLY with the raw numeric value of the large digits (including any decimal point if visible). Do not include units or any other words.' 
             },
             { type: 'image', image: image }
           ]
