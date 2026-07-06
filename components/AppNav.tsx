@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { signOut } from '@/app/(protected)/actions';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Building2, Camera, History, FileSpreadsheet, Receipt, LogOut } from 'lucide-react';
+import { LayoutDashboard, Building2, Camera, History, FileSpreadsheet, Receipt, LogOut, Users } from 'lucide-react';
 
 export function AppNav({ email, role }: { email: string; role: string }) {
   return (
@@ -30,14 +30,12 @@ export function AppNav({ email, role }: { email: string; role: string }) {
           <History className="h-4 w-4" />
           Reading history
         </Link>
-        <Link href="/reconciliation" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-foreground">
-          <FileSpreadsheet className="h-4 w-4" />
-          Reconciliation
-        </Link>
-        <Link href="/billing" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-foreground">
-          <Receipt className="h-4 w-4" />
-          Billing
-        </Link>
+        {role === 'admin' && (
+          <Link href="/admin/users" className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground text-foreground">
+            <Users className="h-4 w-4" />
+            User Management
+          </Link>
+        )}
       </nav>
 
       <div className="mt-auto pt-4 border-t space-y-4">

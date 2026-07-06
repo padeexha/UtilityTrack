@@ -23,6 +23,29 @@ export async function createSite(formData: FormData) {
   redirect('/meters?success=Site created');
 }
 
+export async function updateSite(formData: FormData) {
+  const supabase = await createClient();
+  const id = text(formData, 'id');
+  const name = text(formData, 'name');
+  if (!id || !name) fail('Site ID and name are required.');
+
+  const { error } = await supabase.from('sites').update({ name, address: text(formData, 'address') || null }).eq('id', id);
+  if (error) fail(error.message);
+  revalidatePath('/meters');
+  redirect('/meters?success=Site updated');
+}
+
+export async function deleteSite(formData: FormData) {
+  const supabase = await createClient();
+  const id = text(formData, 'id');
+  if (!id) fail('Site ID is required.');
+
+  const { error } = await supabase.from('sites').delete().eq('id', id);
+  if (error) fail(error.message);
+  revalidatePath('/meters');
+  redirect('/meters?success=Site deleted');
+}
+
 export async function createBuilding(formData: FormData) {
   const supabase = await createClient();
   const siteId = text(formData, 'site_id');
@@ -33,10 +56,40 @@ export async function createBuilding(formData: FormData) {
     site_id: siteId,
     name,
     code: text(formData, 'code') || null,
+    tenant_id: text(formData, 'tenant_id') || null,
   });
   if (error) fail(error.message);
   revalidatePath('/meters');
   redirect('/meters?success=Building created');
+}
+
+export async function updateBuilding(formData: FormData) {
+  const supabase = await createClient();
+  const id = text(formData, 'id');
+  const siteId = text(formData, 'site_id');
+  const name = text(formData, 'name');
+  if (!id || !siteId || !name) fail('Building ID, site, and name are required.');
+
+  const { error } = await supabase.from('buildings').update({
+    site_id: siteId,
+    name,
+    code: text(formData, 'code') || null,
+    tenant_id: text(formData, 'tenant_id') || null,
+  }).eq('id', id);
+  if (error) fail(error.message);
+  revalidatePath('/meters');
+  redirect('/meters?success=Building updated');
+}
+
+export async function deleteBuilding(formData: FormData) {
+  const supabase = await createClient();
+  const id = text(formData, 'id');
+  if (!id) fail('Building ID is required.');
+
+  const { error } = await supabase.from('buildings').delete().eq('id', id);
+  if (error) fail(error.message);
+  revalidatePath('/meters');
+  redirect('/meters?success=Building deleted');
 }
 
 export async function createMeter(formData: FormData) {
@@ -69,6 +122,45 @@ export async function createMeter(formData: FormData) {
   if (error) fail(error.message);
   revalidatePath('/meters');
   redirect('/meters?success=Meter created');
+}
+
+export async function updateMeter(formData: FormData) {
+  const supabase = await createClient();
+  const id = text(formData, 'id');
+  const utilityType = text(formData, 'utility_type');
+  const unit = utilityType === 'water' ? 'm³' : 'kWh';
+  const multiplier = Number(formData.get('multiplication_factor') || 1);
+  const initialReading = Number(formData.get('initial_reading') || 0);
+
+  if (!id) fail('Meter ID is required.');
+
+  const payload = {
+    site_id: text(formData, 'site_id'),
+    building_id: text(formData, 'building_id') || null,
+    parent_meter_id: text(formData, 'parent_meter_id') || null,
+    utility_type: utilityType,
+    name: text(formData, 'name'),
+    meter_number: text(formData, 'meter_number'),
+    unit,
+    multiplication_factor: multiplier,
+    initial_reading: initialReading,
+  };
+
+  const { error } = await supabase.from('meters').update(payload).eq('id', id);
+  if (error) fail(error.message);
+  revalidatePath('/meters');
+  redirect('/meters?success=Meter updated');
+}
+
+export async function deleteMeter(formData: FormData) {
+  const supabase = await createClient();
+  const id = text(formData, 'id');
+  if (!id) fail('Meter ID is required.');
+
+  const { error } = await supabase.from('meters').delete().eq('id', id);
+  if (error) fail(error.message);
+  revalidatePath('/meters');
+  redirect('/meters?success=Meter deleted');
 }
 
 export async function assignMeter(formData: FormData) {
