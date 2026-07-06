@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { AppNav } from '@/components/AppNav';
+import { BottomNav } from '@/components/BottomNav';
 import { Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -39,10 +40,13 @@ export default async function ProtectedLayout({ children }: { children: React.Re
           </span>
         </header>
         
-        <main className="flex-1 w-full max-w-7xl mx-auto">
+        <main className="flex-1 w-full max-w-7xl mx-auto pb-20 md:pb-8">
           {children}
         </main>
       </div>
+      
+      {/* Mobile Bottom Navigation */}
+      <BottomNav />
     </div>
   );
 }

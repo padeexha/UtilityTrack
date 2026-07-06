@@ -182,7 +182,7 @@ export function ReadingCaptureForm({ meters }: { meters: ReadingMeterOption[] })
   }
 
   return (
-    <Card className="max-w-3xl mx-auto shadow-md">
+    <Card className="max-w-3xl mx-auto shadow-lg border-border/50 transition-shadow duration-300">
       <CardHeader>
         <CardTitle className="text-2xl flex items-center gap-2">
           {step === 'scan' ? <><QrCode className="w-6 h-6" /> Scan Meter QR</> : 'Capture Reading'}

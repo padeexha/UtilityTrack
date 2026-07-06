@@ -36,16 +36,16 @@ export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
           </TableHeader>
           <TableBody>
             {sites.map((site: any) => (
-              <TableRow key={`site-${site.id}`} className="bg-muted/10">
-                <TableCell><span className="font-semibold text-primary">Site</span></TableCell>
+              <TableRow key={`site-${site.id}`} className="bg-muted/10 hover:bg-muted/40 transition-colors group">
+                <TableCell><span className="font-semibold text-primary group-hover:text-primary/80 transition-colors">Site</span></TableCell>
                 <TableCell className="font-medium">{site.name}</TableCell>
                 <TableCell className="text-muted-foreground">{site.address || '—'}</TableCell>
                 <TableCell>—</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => setEditingSite(site)}><Edit2 className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => setEditingSite(site)}><Edit2 className="w-4 h-4" /></Button>
                   <form action={deleteSite} className="inline" onSubmit={(e) => !confirm('Delete this site and all its buildings?') && e.preventDefault()}>
                     <input type="hidden" name="id" value={site.id} />
-                    <Button variant="ghost" size="icon" type="submit" className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" type="submit" className="text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></Button>
                   </form>
                 </TableCell>
               </TableRow>
@@ -54,18 +54,18 @@ export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
               const site = sites.find((s: any) => s.id === building.site_id);
               const tenant = tenantUsers.find((t: any) => t.id === building.tenant_id);
               return (
-                <TableRow key={`bld-${building.id}`}>
-                  <TableCell className="pl-8"><span className="text-muted-foreground">↳ Building</span></TableCell>
+                <TableRow key={`bld-${building.id}`} className="hover:bg-muted/40 transition-colors group">
+                  <TableCell className="pl-8"><span className="text-muted-foreground group-hover:text-foreground transition-colors">↳ Building</span></TableCell>
                   <TableCell>{building.name} {building.code && <span className="text-xs text-muted-foreground ml-2">({building.code})</span>}</TableCell>
                   <TableCell className="text-muted-foreground text-sm">Site: {site?.name}</TableCell>
                   <TableCell>
                     {tenant ? <span className="px-2 py-1 bg-amber-500/10 text-amber-600 rounded-md text-xs font-medium">{tenant.full_name}</span> : <span className="text-muted-foreground text-sm">Internal</span>}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => setEditingBuilding(building)}><Edit2 className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => setEditingBuilding(building)}><Edit2 className="w-4 h-4" /></Button>
                     <form action={deleteBuilding} className="inline" onSubmit={(e) => !confirm('Delete this building?') && e.preventDefault()}>
                       <input type="hidden" name="id" value={building.id} />
-                      <Button variant="ghost" size="icon" type="submit" className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="icon" type="submit" className="text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></Button>
                     </form>
                   </TableCell>
                 </TableRow>
@@ -99,7 +99,7 @@ export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
               const building = meter.buildings;
               const site = meter.sites;
               return (
-                <TableRow key={meter.id}>
+                <TableRow key={meter.id} className="hover:bg-muted/40 transition-colors group">
                   <TableCell>
                     <div className="font-semibold">{meter.name}</div>
                     <div className="text-xs text-muted-foreground">{meter.parent_meter_id ? 'Sub-meter' : 'Main meter'}</div>
@@ -115,10 +115,10 @@ export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
                   <TableCell>{parent?.name ?? '—'}</TableCell>
                   <TableCell>{Number(meter.multiplication_factor)}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => setEditingMeter(meter)}><Edit2 className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => setEditingMeter(meter)}><Edit2 className="w-4 h-4" /></Button>
                     <form action={deleteMeter} className="inline" onSubmit={(e) => !confirm('Delete this meter and all its readings? This is irreversible.') && e.preventDefault()}>
                       <input type="hidden" name="id" value={meter.id} />
-                      <Button variant="ghost" size="icon" type="submit" className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+                      <Button variant="ghost" size="icon" type="submit" className="text-destructive hover:bg-destructive/10 hover:text-destructive transition-colors"><Trash2 className="w-4 h-4" /></Button>
                     </form>
                   </TableCell>
                 </TableRow>

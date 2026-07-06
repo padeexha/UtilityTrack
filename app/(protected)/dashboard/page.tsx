@@ -58,8 +58,8 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="shadow-sm">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="shadow-sm border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Meters</CardTitle>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -70,7 +70,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
         
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-500"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Missing This Month</CardTitle>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-destructive"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -92,7 +92,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm">
+        <Card className="shadow-sm border-border/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Readings</CardTitle>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-green-600"><polyline points="20 6 9 17 4 12"/></svg>
@@ -104,8 +104,9 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
-        <Card className="shadow-sm bg-card/40">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-2">
+        <Card className="shadow-sm border-border/50 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-yellow-500/10 rounded-full blur-2xl group-hover:bg-yellow-500/20 transition-all duration-500"></div>
           <CardHeader>
             <CardTitle>Electricity This Month</CardTitle>
           </CardHeader>
@@ -113,7 +114,8 @@ export default async function DashboardPage() {
             <div className="text-3xl font-bold">{electricity.toLocaleString(undefined, { maximumFractionDigits: 2 })} <span className="text-lg text-muted-foreground font-normal">kWh</span></div>
           </CardContent>
         </Card>
-        <Card className="shadow-sm bg-card/40">
+        <Card className="shadow-sm border-border/50 hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all duration-500"></div>
           <CardHeader>
             <CardTitle>Water This Month</CardTitle>
           </CardHeader>
@@ -123,7 +125,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-border/50 hover:shadow-md transition-all duration-300">
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Latest Readings</CardTitle>
@@ -148,8 +150,8 @@ export default async function DashboardPage() {
             </TableHeader>
             <TableBody>
               {readings.slice(0, 10).map((reading) => (
-                <TableRow key={reading.id}>
-                  <TableCell className="font-medium">{reading.meters?.name ?? 'Unknown meter'}</TableCell>
+                <TableRow key={reading.id} className="hover:bg-muted/40 transition-colors cursor-pointer group">
+                  <TableCell className="font-medium group-hover:text-primary transition-colors">{reading.meters?.name ?? 'Unknown meter'}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 text-xs font-semibold rounded-full ${reading.meters?.utility_type === 'electricity' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-500' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'}`}>
                       {reading.meters?.utility_type}
