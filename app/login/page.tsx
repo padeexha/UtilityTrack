@@ -26,9 +26,11 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
+      const loginEmail = email.includes('@') ? email.trim() : `${email.trim().toLowerCase()}@worker.local`;
+
       if (mode === 'signup') {
         const { error: signupError, data } = await supabase.auth.signUp({
-          email,
+          email: loginEmail,
           password,
           options: {
             data: { full_name: fullName },
@@ -44,7 +46,7 @@ export default function LoginPage() {
           setMessage('Account created. Check your email to confirm the account, then sign in.');
         }
       } else {
-        const { error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+        const { error: loginError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });
         if (loginError) throw loginError;
         router.push('/dashboard');
         router.refresh();
@@ -84,8 +86,8 @@ export default function LoginPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" placeholder="john@example.com" />
+              <Label htmlFor="email">Username or Email</Label>
+              <Input id="email" type="text" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="username" placeholder="e.g. johndoe" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>

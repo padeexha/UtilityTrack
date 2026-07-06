@@ -39,7 +39,7 @@ export default async function ReadingsPage({ searchParams }: { searchParams: Pro
   ]);
 
   const readings = (readingsResult.data ?? []) as unknown as ReadingRow[];
-  const canApprove = ['admin', 'manager'].includes(profileResult.data?.role ?? 'worker');
+  const canApprove = ['admin', 'manager', 'supervisor'].includes(profileResult.data?.role ?? 'worker');
 
   const photoUrls = new Map<string, string>();
   await Promise.all(readings.map(async (reading) => {

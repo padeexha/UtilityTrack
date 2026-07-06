@@ -77,7 +77,7 @@ export default async function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pendingResult.count ?? 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting manager review</p>
+            <p className="text-xs text-muted-foreground mt-1">Awaiting manager/supervisor review</p>
           </CardContent>
         </Card>
 
