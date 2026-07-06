@@ -1,0 +1,9 @@
+{
+  "name": "UtilityTrack",
+  "short_name": "UtilityTrack",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#f4f7f6",
+  "theme_color": "#0f766e",
+  "description": "Mobile utility meter reading and billing system"
+}
