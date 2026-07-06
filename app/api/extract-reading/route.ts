@@ -2,6 +2,8 @@ import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60; // Allow up to 60 seconds for AI processing on Vercel
+
 export async function POST(req: Request) {
   try {
     const { image } = await req.json();
