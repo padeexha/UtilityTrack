@@ -57,60 +57,94 @@ export function ReadingCaptureForm({ meters }: { meters: ReadingMeterOption[] })
     : 0;
 
   async function changePhoto(file: File | null) {
-    if (preview) URL.revokeObjectURL(preview);
-    setPhoto(file);
-    setPreview(file ? URL.createObjectURL(file) : '');
-
-    if (file) {
-      setOcrLoading(true);
-      setError('');
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const img = new Image();
-        img.onload = async () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1000;
-          let scaleSize = 1;
-          if (img.width > MAX_WIDTH) {
-            scaleSize = MAX_WIDTH / img.width;
-          }
-          canvas.width = img.width * scaleSize;
-          canvas.height = img.height * scaleSize;
-          
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-          
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-          
-          try {
-            const res = await fetch('/api/extract-reading', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ image: compressedBase64 })
-            });
-            
-            if (!res.ok) {
-              const text = await res.text();
-              throw new Error(`Server returned ${res.status}: ${text.slice(0, 100)}`);
-            }
-            
-            const data = await res.json();
-            if (data.reading) {
-              setCurrentReading(data.reading);
-            } else {
-              setError(data.error || 'AI could not read meter.');
-            }
-          } catch (err: any) {
-            console.error('API Error:', err);
-            setError('Failed to extract reading. ' + err.message);
-          } finally {
-            setOcrLoading(false);
-          }
-        };
-        img.src = reader.result as string;
-      };
-      reader.readAsDataURL(file);
+    if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
+    
+    if (!file) {
+      setPhoto(null);
+      setPreview('');
+      return;
     }
+
+    // Show temporary preview while processing
+    setPreview(URL.createObjectURL(file));
+    setOcrLoading(true);
+    setError('');
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800; // More aggressive compression for Supabase Storage limits
+        let scaleSize = 1;
+        if (img.width > MAX_WIDTH) {
+          scaleSize = MAX_WIDTH / img.width;
+        }
+        canvas.width = img.width * scaleSize;
+        canvas.height = img.height * scaleSize;
+        
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+
+        // Draw original image
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        
+        // Draw permanent Date and Time Stamp watermark
+        const timestamp = new Date().toLocaleString();
+        ctx.font = 'bold 24px sans-serif';
+        const pPad = 12;
+        const textWidth = ctx.measureText(timestamp).width;
+        const rectWidth = textWidth + (pPad * 2);
+        const rectHeight = 24 + (pPad * 2); 
+        
+        // Semi-transparent black background for contrast
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        ctx.fillRect(canvas.width - rectWidth, canvas.height - rectHeight, rectWidth, rectHeight);
+        
+        // White text
+        ctx.fillStyle = '#ffffff';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(timestamp, canvas.width - rectWidth + pPad, canvas.height - (rectHeight / 2));
+        
+        // Quality 0.7 produces tiny files (~150KB) while maintaining readability
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        
+        // Replace the raw 6MB file with the highly compressed, stamped JPEG for Supabase upload
+        canvas.toBlob((blob) => {
+          if (blob) {
+            setPhoto(new File([blob], file.name.replace(/\.[^/.]+$/, "") + "_stamped.jpg", { type: 'image/jpeg' }));
+            setPreview(compressedBase64); // Show the stamped version in the UI!
+          }
+        }, 'image/jpeg', 0.7);
+        
+        try {
+          const res = await fetch('/api/extract-reading', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: compressedBase64 })
+          });
+          
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(`Server returned ${res.status}: ${text.slice(0, 100)}`);
+          }
+          
+          const data = await res.json();
+          if (data.reading) {
+            setCurrentReading(data.reading);
+          } else {
+            setError(data.error || 'AI could not read meter.');
+          }
+        } catch (err: any) {
+          console.error('API Error:', err);
+          setError('Failed to extract reading. ' + err.message);
+        } finally {
+          setOcrLoading(false);
+        }
+      };
+      img.src = reader.result as string;
+    };
+    reader.readAsDataURL(file);
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
