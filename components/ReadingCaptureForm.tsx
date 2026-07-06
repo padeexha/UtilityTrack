@@ -65,26 +65,49 @@ export function ReadingCaptureForm({ meters }: { meters: ReadingMeterOption[] })
       setOcrLoading(true);
       setError('');
       const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64data = reader.result;
-        try {
-          const res = await fetch('/api/extract-reading', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ image: base64data })
-          });
-          const data = await res.json();
-          if (res.ok && data.reading) {
-            setCurrentReading(data.reading);
-          } else {
-            console.error('AI Error:', data.error);
-            // Optionally set error: setError('AI could not read meter: ' + data.error);
+      reader.onloadend = () => {
+        const img = new Image();
+        img.onload = async () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1000;
+          let scaleSize = 1;
+          if (img.width > MAX_WIDTH) {
+            scaleSize = MAX_WIDTH / img.width;
           }
-        } catch (err) {
-          console.error('API Error:', err);
-        } finally {
-          setOcrLoading(false);
-        }
+          canvas.width = img.width * scaleSize;
+          canvas.height = img.height * scaleSize;
+          
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+          
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+          
+          try {
+            const res = await fetch('/api/extract-reading', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ image: compressedBase64 })
+            });
+            
+            if (!res.ok) {
+              const text = await res.text();
+              throw new Error(`Server returned ${res.status}: ${text.slice(0, 100)}`);
+            }
+            
+            const data = await res.json();
+            if (data.reading) {
+              setCurrentReading(data.reading);
+            } else {
+              setError(data.error || 'AI could not read meter.');
+            }
+          } catch (err: any) {
+            console.error('API Error:', err);
+            setError('Failed to extract reading. ' + err.message);
+          } finally {
+            setOcrLoading(false);
+          }
+        };
+        img.src = reader.result as string;
       };
       reader.readAsDataURL(file);
     }
