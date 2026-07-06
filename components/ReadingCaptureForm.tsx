@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import Tesseract from 'tesseract.js';
+
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -64,18 +64,29 @@ export function ReadingCaptureForm({ meters }: { meters: ReadingMeterOption[] })
     if (file) {
       setOcrLoading(true);
       setError('');
-      try {
-        const { data: { text } } = await Tesseract.recognize(file, 'eng');
-        const match = text.match(/\b\d+(\.\d+)?\b/g);
-        if (match && match.length > 0) {
-          const longestNumber = match.reduce((a, b) => a.length > b.length ? a : b);
-          setCurrentReading(Number(longestNumber).toString());
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64data = reader.result;
+        try {
+          const res = await fetch('/api/extract-reading', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: base64data })
+          });
+          const data = await res.json();
+          if (res.ok && data.reading) {
+            setCurrentReading(data.reading);
+          } else {
+            console.error('AI Error:', data.error);
+            // Optionally set error: setError('AI could not read meter: ' + data.error);
+          }
+        } catch (err) {
+          console.error('API Error:', err);
+        } finally {
+          setOcrLoading(false);
         }
-      } catch (err) {
-        console.error('OCR Error:', err);
-      } finally {
-        setOcrLoading(false);
-      }
+      };
+      reader.readAsDataURL(file);
     }
   }
 
