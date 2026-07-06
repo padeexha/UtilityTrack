@@ -7,12 +7,14 @@ import { Modal } from '@/components/ui/modal';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updateSite, deleteSite, updateBuilding, deleteBuilding, updateMeter, deleteMeter } from './actions';
-import { Edit2, Trash2 } from 'lucide-react';
+import { Edit2, Trash2, QrCode, Printer } from 'lucide-react';
+import QRCode from 'react-qr-code';
 
 export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
   const [editingSite, setEditingSite] = useState<any>(null);
   const [editingBuilding, setEditingBuilding] = useState<any>(null);
   const [editingMeter, setEditingMeter] = useState<any>(null);
+  const [qrMeter, setQrMeter] = useState<any>(null);
 
   const selectClass = "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -114,7 +116,8 @@ export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
                   </TableCell>
                   <TableCell>{parent?.name ?? '—'}</TableCell>
                   <TableCell>{Number(meter.multiplication_factor)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right whitespace-nowrap">
+                    <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => setQrMeter(meter)} title="Show QR Code"><QrCode className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" className="hover:bg-primary/10 hover:text-primary transition-colors" onClick={() => setEditingMeter(meter)}><Edit2 className="w-4 h-4" /></Button>
                     <form action={deleteMeter} className="inline" onSubmit={(e) => !confirm('Delete this meter and all its readings? This is irreversible.') && e.preventDefault()}>
                       <input type="hidden" name="id" value={meter.id} />
@@ -243,6 +246,64 @@ export function PremisesTables({ sites, buildings, meters, tenantUsers }: any) {
               <Button type="submit">Save Changes</Button>
             </div>
           </form>
+        )}
+      </Modal>
+
+      {/* Show QR Code Modal */}
+      <Modal isOpen={!!qrMeter} onClose={() => setQrMeter(null)} title="Meter QR Code">
+        {qrMeter && (
+          <div className="space-y-6 flex flex-col items-center">
+            <div className="text-center">
+              <h3 className="text-xl font-bold">{qrMeter.name}</h3>
+              <p className="text-muted-foreground">{qrMeter.meter_number}</p>
+            </div>
+            
+            <div className="bg-white p-6 rounded-xl shadow-sm border" id="printable-qr">
+              <QRCode 
+                value={qrMeter.id} 
+                size={256} 
+                level="H"
+              />
+            </div>
+            
+            <div className="text-center text-sm text-muted-foreground max-w-sm">
+              Print this QR code and attach it to the physical meter. 
+              Users can scan it to instantly load this meter in the capture form.
+            </div>
+
+            <div className="pt-4 flex w-full gap-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setQrMeter(null)}>Close</Button>
+              <Button type="button" className="flex-1 gap-2" onClick={() => {
+                const printWindow = window.open('', '_blank');
+                if (printWindow) {
+                  printWindow.document.write(`
+                    <html>
+                      <head>
+                        <title>Print QR - ${qrMeter.name}</title>
+                        <style>
+                          body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+                          h1 { margin-bottom: 5px; font-size: 24px; }
+                          p { margin-top: 0; color: #555; margin-bottom: 30px; }
+                          img, svg { max-width: 300px; height: auto; }
+                        </style>
+                      </head>
+                      <body>
+                        <h1>${qrMeter.name}</h1>
+                        <p>S/N: ${qrMeter.meter_number}</p>
+                        ${document.getElementById('printable-qr')?.innerHTML || ''}
+                        <script>
+                          window.onload = () => { window.print(); window.close(); }
+                        </script>
+                      </body>
+                    </html>
+                  `);
+                  printWindow.document.close();
+                }
+              }}>
+                <Printer className="w-4 h-4" /> Print QR
+              </Button>
+            </div>
+          </div>
         )}
       </Modal>
     </div>
