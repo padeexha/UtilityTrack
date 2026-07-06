@@ -1,5 +1,5 @@
 import { generateText } from 'ai';
-import { openai } from '@ai-sdk/openai';
+import { google } from '@ai-sdk/google';
 import { NextResponse } from 'next/server';
 
 export const maxDuration = 60; // Allow up to 60 seconds for AI processing on Vercel
@@ -12,13 +12,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    // Verify if OPENAI_API_KEY is available
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ error: 'Missing OPENAI_API_KEY environment variable. Cannot process image.' }, { status: 500 });
+    // Verify if GOOGLE_GENERATIVE_AI_API_KEY is available
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      return NextResponse.json({ error: 'Missing GOOGLE_GENERATIVE_AI_API_KEY environment variable. Cannot process image.' }, { status: 500 });
     }
 
     const { text } = await generateText({
-      model: openai('gpt-4o-mini'),
+      model: google('gemini-1.5-flash'),
       messages: [
         {
           role: 'user',
