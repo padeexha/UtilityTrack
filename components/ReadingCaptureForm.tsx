@@ -181,7 +181,7 @@ export function ReadingCaptureForm({ meters }: { meters: ReadingMeterOption[] })
                   console.error(err);
                 }
               }}
-              components={{ audio: false }}
+
             />
             {/* Overlay corners for visual guidance */}
             <div className="absolute inset-8 border-2 border-white/40 border-dashed rounded-lg pointer-events-none" />
